@@ -5,21 +5,22 @@ const path = require("path");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const productsRoutes = require("./routes/products");
+const pizzaRoutes = require("./routes/pizza");
 
-dotenv.config(); // Use environment variables
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 
-// Middleware to parse JSON requests and serve static files for image access
 app.use(bodyParser.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve uploaded images
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 //http://localhost:5000/uploads/1732169267708.jpeg
 
 // Routes
 app.use("/api/products", productsRoutes);
+app.use("/api/products", pizzaRoutes);
 
 // Connect to MongoDB
 mongoose

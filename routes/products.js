@@ -5,7 +5,7 @@ const Product = require("../models/Product");
 const router = express.Router();
 const { createResponse } = require("../utils/responseHelper");
 
-// Set up multer for image uploads
+// Set up multer for single image upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./uploads/"); // Folder to store images
@@ -15,36 +15,38 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage }).array("images", 5); // Accept up to 5 images
+const upload = multer({ storage: storage }).single("image"); // Accept only one image
 
-// POST route to upload multiple images
-router.post("/upload-images", upload, (req, res) => {
-  try {
-    if (!req.files || req.files.length === 0) {
+// POST route to upload a single image
+router.post("/upload-image", (req, res) => {
+  upload(req, res, (err) => {
+    if (err) {
+      console.error(err);
       return res
-        .status(400)
-        .json(createResponse(400, false, "No images uploaded"));
+        .status(500)
+        .json(createResponse(500, false, "Image upload failed"));
     }
 
-    const images = req.files.map((file, index) => ({
-      url: `/uploads/${file.filename}`,
-      isFeatured: index === 0,
-    }));
+    if (!req.file) {
+      return res
+        .status(400)
+        .json(createResponse(400, false, "No image uploaded"));
+    }
+
+    // Return only one image URL
+    const imageUrl = `/uploads/${req.file.filename}`;
 
     res.status(200).json(
-      createResponse(200, true, "Images uploaded successfully", {
-        images: images,
+      createResponse(200, true, "Image uploaded successfully", {
+        image: imageUrl, // Single image URL instead of an array
       })
     );
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(createResponse(500, false, "Image upload failed"));
-  }
+  });
 });
 
 //!Add product
 // Add product
-router.post("/add", async (req, res) => {
+router.post("/addProduct", async (req, res) => {
   const { name, sku, quantity, description, images, price } = req.body;
 
   if (!images || images.length === 0) {
