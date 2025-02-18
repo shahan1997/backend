@@ -1,12 +1,13 @@
 const express = require("express");
 const path = require("path");
 const router = express.Router();
+const authMiddleware = require("../middleware/auth");
 const Pizza = require("../models/Pizza");
 
 const { createResponse } = require("../utils/responseHelper");
 
 //! Add pizza (product) API
-router.post("/add", async (req, res) => {
+router.post("/add", authMiddleware, async (req, res) => {
   const { name, basePrice, description, ingredients, images } = req.body;
 
   if (!images || images.length === 0 || images.some((img) => img === "")) {
@@ -113,7 +114,7 @@ router.get("/:id", async (req, res) => {
 
 //! Update pizza by ID
 // Update pizza by ID
-router.put("/:id", async (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
   const { name, basePrice, description, ingredients, images } = req.body;
 
@@ -181,7 +182,7 @@ router.put("/:id", async (req, res) => {
 });
 
 //! Delete pizza by ID
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
 
   if (!id) {

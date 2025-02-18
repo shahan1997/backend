@@ -6,6 +6,8 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const productsRoutes = require("./routes/products");
 const pizzaRoutes = require("./routes/pizza");
+const authRoutes = require("./routes/auth");
+const orderRoutes = require("./routes/order");
 
 dotenv.config();
 
@@ -19,8 +21,10 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 //http://localhost:5000/uploads/1732169267708.jpeg
 
 // Routes
+app.use("/api/products", authRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/products", pizzaRoutes);
+app.use("/api/products", orderRoutes);
 
 // Connect to MongoDB
 mongoose
