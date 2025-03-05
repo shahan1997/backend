@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order");
 const { createResponse } = require("../utils/responseHelper");
-const auth = require("../middleware/auth");
+const { auth, admin } = require("../middleware/auth");
 
 //! Place Order API
 router.post("/place-order", async (req, res) => {
@@ -48,7 +48,7 @@ router.post("/place-order", async (req, res) => {
 });
 
 //! Get All Orders API
-router.get("/get/orders", auth, async (req, res) => {
+router.get("/get/orders", auth, admin, async (req, res) => {
   try {
     const orders = await Order.find();
     res
@@ -61,7 +61,7 @@ router.get("/get/orders", auth, async (req, res) => {
 });
 
 //! Update Order Status API
-router.put("/order/:id", auth, async (req, res) => {
+router.put("/order/:id", auth, admin, async (req, res) => {
   const { status } = req.body;
 
   // Validate that the provided status is valid

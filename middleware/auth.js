@@ -17,4 +17,13 @@ const auth = (req, res, next) => {
   }
 };
 
-module.exports = auth;
+const admin = (req, res, next) => {
+  if (req.user.role !== 1) {
+    return res
+      .status(403)
+      .json(createResponse(403, false, "Access denied. Admins only."));
+  }
+  next();
+};
+
+module.exports = { auth, admin };

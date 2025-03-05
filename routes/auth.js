@@ -8,9 +8,8 @@ const { Validation } = require("../validations/validation");
 const router = express.Router();
 const { createResponse } = require("../utils/responseHelper");
 
-// User Registration
 router.post("/register", Validation.registerValidation, async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -35,7 +34,13 @@ router.post("/register", Validation.registerValidation, async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({ name, email, password: hashedPassword });
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role: role === 1 ? 1 : 0, // Only allow role assignment for admin
+    });
+
     await newUser.save();
 
     res
@@ -46,7 +51,6 @@ router.post("/register", Validation.registerValidation, async (req, res) => {
   }
 });
 
-// User Login
 router.post("/login", Validation.loginValidation, async (req, res) => {
   const { email, password } = req.body;
 
@@ -78,21 +82,24 @@ router.post("/login", Validation.loginValidation, async (req, res) => {
         .json(createResponse(400, false, "Invalid credentials."));
     }
 
-    // Ensure JWT_SECRET is set
     if (!process.env.JWT_SECRET) {
       throw new Error("JWT_SECRET is not defined");
     }
 
     const token = jwt.sign(
-      { id: user._id, email: user.email },
+      { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET
-      // { expiresIn: "1h" }
     );
 
     res.json(
       createResponse(200, true, "Login successful", {
         token,
-        user: { id: user._id, name: user.name, email: user.email },
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
       })
     );
   } catch (err) {
